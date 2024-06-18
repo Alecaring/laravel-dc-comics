@@ -15,6 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('nome');
             $table->text('descrizione');
+            $table->text('image');
+            $table->decimal('price', 10, 2); // Prezzo della casa
+            $table->string('address'); // Indirizzo della casa
+            $table->integer('bedrooms'); // Numero di camere da letto
+            $table->integer('bathrooms'); // Numero di bagni
+            $table->integer('square_meters'); // Superficie in metri quadrati
+            $table->string('property_type'); // Tipo di proprietà
+            $table->string('status'); // Stato della casa
+            $table->year('built_year'); // Data di costruzione
             $table->timestamps();
         });
     }

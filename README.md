@@ -7,17 +7,10 @@ Comprende i passaggi per installare il progetto, collegarlo a un database, crear
 
 ___
 
-## Sommario
+## Sommario principale
 
 - [Installazione del Progetto](#installazione-del-progetto)
-- [Collegare il Database](#collegare-il-database)
-- [Creazione e Modifica del Database](#creazione-e-modifica-del-database)
-- [Creazione delle API](#creazione-delle-api)
-- [Abilitare CORS](#abilitare-cors)
-- [Paginazione](#paginazione)
-- [Ottimizzazione del Database](#ottimizzazione-del-database)
-- [Comandi SQL più Utilizzati e Best Practices](#comandi-sql-piu-utilizzati-e-best-practices)
-- [Conclusione](#conclusione)
+
 
 ---
 
@@ -72,6 +65,19 @@ npm run dev
 ### 6. Accedere all'Applicazione
 
 Apri il link fornito dal comando `php artisan serve` nel tuo browser per visualizzare l'applicazione.
+___
+## Sommario
+
+- [Creazione Resource](#creazione-resource)
+- [Creazione di una Form Request in Laravel](creazione-di-una-form-request-in-laravel)
+- [Collegare il Database](#collegare-il-database)
+- [Creazione e Modifica del Database](#creazione-e-modifica-del-database)
+- [Creazione delle API](#creazione-delle-api)
+- [Abilitare CORS](#abilitare-cors)
+- [Paginazione](#paginazione)
+- [Ottimizzazione del Database](#ottimizzazione-del-database)
+- [Comandi SQL più Utilizzati e Best Practices](#comandi-sql-piu-utilizzati-e-best-practices)
+- [Conclusione](#conclusione)
 ___
 ## Collegare il Database
 
@@ -379,6 +385,113 @@ class ComicController extends Controller
 
 ### 5. Creare le View
 Crea le view in `resources/views/comics` per visualizzare, creare, modificare ed eliminare i dati dei fumetti.
+
+___
+
+## Creazione di una Form Request in Laravel
+Le Form Requests in Laravel offrono un modo comodo per validare i dati delle richieste HTTP. Consentono di centralizzare la logica di validazione e di autorizzazione delle richieste, rendendo i controller più puliti e organizzati.
+
+**Passaggi per Creare una Form Request**
+
+### 1. Creare una Form Request
+Per creare una Form Request, utilizza il comando `make:request` di Artisan:
+
+```bash
+php artisan make:request NomeRequest
+```
+Ad esempio, se stai creando una Form Request per validare i dati di un "Character", esegui:
+
+```bash
+php artisan make:request CharacterRequest
+```
+Questo comando creerà una nuova classe di Form Request in `app/Http/Requests/CharacterRequest.php`.
+
+### 2. Definire le Regole di Validazione
+Apri la nuova classe di Form Request generata e definisci le regole di validazione nel metodo `rules`:
+
+```php
+// app/Http/Requests/CharacterRequest.php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class CharacterRequest extends FormRequest
+{
+    // Determina se l'utente è autorizzato a fare questa richiesta.
+    public function authorize()
+    {
+        return true; // Modifica questo valore se hai logica di autorizzazione
+    }
+
+    // Definisce le regole di validazione per la richiesta.
+    public function rules()
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+        ];
+    }
+
+    // Definisce i messaggi di errore personalizzati (opzionale)
+    public function messages()
+    {
+        return [
+            'name.required' => 'Il nome è obbligatorio.',
+            'description.required' => 'La descrizione è obbligatoria.',
+        ];
+    }
+}
+```
+
+### 3. Utilizzare la Form Request nel Controller
+Una volta definita la Form Request, puoi utilizzarla nel tuo controller per validare automaticamente le richieste in arrivo:
+
+```php
+// app/Http/Controllers/CharacterController.php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CharacterRequest;
+use App\Models\Character;
+use Illuminate\Http\Request;
+
+class CharacterController extends Controller
+{
+    public function store(CharacterRequest $request)
+    {
+        // I dati della richiesta sono già stati validati
+
+        $character = Character::create($request->all());
+
+        return response()->json($character, 201);
+    }
+
+    public function update(CharacterRequest $request, $id)
+    {
+        // I dati della richiesta sono già stati validati
+
+        $character = Character::findOrFail($id);
+        $character->update($request->all());
+
+        return response()->json($character, 200);
+    }
+}
+```
+In questo modo, non devi scrivere manualmente la logica di validazione all'interno dei metodi del controller. La Form Request si occuperà di validare i dati prima che arrivino ai metodi del controller.
+
+Le Form Requests in Laravel semplificano la gestione della validazione dei dati e rendono i controller più puliti e gestibili. Segui i passaggi sopra indicati per creare e utilizzare efficacemente le Form Requests nelle tue applicazioni Laravel.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
