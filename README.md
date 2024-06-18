@@ -218,6 +218,176 @@ Esegui il seeder per popolare il database:
 php artisan db:seed --class=NomeTabellaSeeder
 ```
 ___
+## Creazione Resource
+
+### 1. Creare il Controller --resource
+
+Il controller --resource gestisce le richieste HTTP. Esegui il seguente comando per creare un controller `--resource`:
+
+```bash
+php artisan make:controller ComicController --resource
+```
+### 2. Accedere alle liste
+
+```bash
+php artisan route:list
+```
+___
+## Creazione Resource
+### 1. Creare il Controller --resource
+
+Il controller --resource gestisce le richieste HTTP. Esegui il seguente comando per creare un controller `--resource`:
+
+```bash
+php artisan make:controller ComicController --resource
+```
+
+### 2. Visualizzare le Rotte
+Il comando `route:list` permette di visualizzare tutte le rotte registrate nell'applicazione. Questo comando è utile per vedere quali URL sono disponibili e quali metodi dei controller sono associati a ciascuna rotta.
+
+
+```bash
+php artisan route:list
+```
+
+- **Utilizzare `php artisan route:list`**
+### 1. Elencare le Rotte Disponibili
+Esegui il comando:
+```bash
+php artisan route:list
+```
+Questo comando elenca tutte le rotte dell'applicazione in una tabella. La tabella include:
+
+- **Method:** Il metodo HTTP (GET, POST, PUT, DELETE) supportato dalla rotta.
+- **URI:** L'URL della rotta.
+- **Name:** Il nome della rotta.
+- **Action:** Il metodo del controller associato alla rotta.
+- **Middleware:** I middleware applicati alla rotta.
+
+Esempio di output del comando `php artisan route:list`:
+
+```bash
++--------+-----------+------------------+-----------------------+----------------------------------------------------+--------------+
+| Domain | Method    | URI              | Name                  | Action                                             | Middleware   |
++--------+-----------+------------------+-----------------------+----------------------------------------------------+--------------+
+|        | GET|HEAD  | /                | home.index            | App\Http\Controllers\NomeController@index          | web          |
+|        | GET|HEAD  | api/nomi         | nomi.index            | App\Http\Controllers\API\NomeController@index      | api          |
+|        | POST      | api/nomi         | nomi.store            | App\Http\Controllers\API\NomeController@store      | api          |
+|        | GET|HEAD  | api/nomi/{nomi}  | nomi.show             | App\Http\Controllers\API\NomeController@show       | api          |
+|        | PUT|PATCH | api/nomi/{nomi}  | nomi.update           | App\Http\Controllers\API\NomeController@update     | api          |
+|        | DELETE    | api/nomi/{nomi}  | nomi.destroy          | App\Http\Controllers\API\NomeController@destroy    | api          |
++--------+-----------+------------------+-----------------------+----------------------------------------------------+--------------+
+```
+### 2. Capire le Rotte
+
+Dall'output di `php artisan route:list`, puoi vedere tutte le rotte disponibili nella tua applicazione, inclusi i metodi HTTP supportati, gli URL, i nomi delle rotte e i metodi dei controller associati. Questo è utile per verificare che le rotte siano configurate correttamente e per il debugging.
+### 3. Usare le Rotte
+Le informazioni fornite da `php artisan route:list` possono essere utilizzate per:
+- **Navigare nell'applicazione:** Conoscere gli URL disponibili ti aiuta a navigare e testare le varie parti della tua applicazione.
+- **Debugging:** Se una rotta non funziona come previsto, puoi usare route:list per verificare che sia configurata correttamente.
+- **Documentazione:** Puoi usare l'output di route:list come riferimento per documentare le API della tua applicazione.
+
+# Esempio Completo di Implementazione
+
+### 1. Creare un Modello
+
+```bash
+php artisan make:model Comic
+```
+
+### 2. Creare un Controller Resource
+
+```bash
+php artisan make:controller ComicController --resource
+```
+
+### 3. Definire le Rotte Resource
+
+Aggiungi le rotte resource nel file `routes/web.php`:
+
+```php
+use App\Http\Controllers\ComicController;
+
+Route::resource('comics', ComicController::class);
+```
+
+### 4. Implementare i Metodi del Controller
+Modifica il controller `ComicController` per implementare i metodi CRUD:
+
+```php
+namespace App\Http\Controllers;
+
+use App\Models\Comic;
+use Illuminate\Http\Request;
+
+class ComicController extends Controller
+{
+    public function index()
+    {
+        $comics = Comic::all();
+        return view('comics.index', compact('comics'));
+    }
+
+    public function create()
+    {
+        return view('comics.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        Comic::create($request->all());
+        return redirect()->route('comics.index');
+    }
+
+    public function show($id)
+    {
+        $comic = Comic::find($id);
+        return view('comics.show', compact('comic'));
+    }
+
+    public function edit($id)
+    {
+        $comic = Comic::find($id);
+        return view('comics.edit', compact('comic'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $comic = Comic::find($id);
+        $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
+        ]);
+
+        $comic->update($request->all());
+        return redirect()->route('comics.index');
+    }
+
+    public function destroy($id)
+    {
+        $comic = Comic::find($id);
+        $comic->delete();
+        return redirect()->route('comics.index');
+    }
+}
+```
+
+### 5. Creare le View
+Crea le view in `resources/views/comics` per visualizzare, creare, modificare ed eliminare i dati dei fumetti.
+
+
+
+
+
+
+
+
+___
 ## Creazione delle API
 
 ### 1. Creare il Controller API
@@ -477,12 +647,6 @@ Monitora le prestazioni del database utilizzando strumenti di monitoraggio e ott
 ```SQL
 EXPLAIN SELECT * FROM nome_tabella WHERE colonna = 'valore';
 ```
-
-
-
-
-
-
 
 ___
 
